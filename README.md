@@ -4,11 +4,11 @@ Reference implementation of the OAuth 2.0 Authorization Code + PKCE localhost-ca
 
 Runtime-agnostic TypeScript (Node.js 18+, Bun), ~300 lines of real code, tested end-to-end against a real Clerk dev instance.
 
-**Status:** example / prototype. Fork it, copy it, or file-link it. Not a published package.
+**Status:** reference implementation. Fork it, copy it, or vendor it into your CLI. This repo is not a published or officially supported `@clerk/cli-auth` package.
 
 ## Why this exists
 
-Adding a "sign in with Clerk" flow to a CLI follows a well-known pattern (PKCE + localhost callback + keychain storage), but the details are non-obvious if you've never built one. This repo is the documented reference. See the companion write-up at **clerk.com/blog/adding-clerk-auth-to-your-cli**.
+Adding a "sign in with Clerk" flow to a CLI follows a well-known pattern (PKCE + localhost callback + keychain storage), but the details are non-obvious if you've never built one. This repo documents that pattern as a compact TypeScript reference implementation. See the companion write-up at **clerk.com/blog/adding-clerk-auth-to-your-cli**.
 
 ## Setup
 
@@ -21,7 +21,7 @@ Pick whichever path fits your workflow.
 **Clerk Dashboard (recommended for most devs)** — in your dev instance, go to **Configure → OAuth Applications → Create**. Set:
 
 - Name: your CLI's name
-- Redirect URI: `http://127.0.0.1:*/callback` (wildcard port; if wildcard isn't offered, use a specific port like `http://127.0.0.1:8787/callback` and configure the SDK with `callbackPort: 8787`)
+- Redirect URI: `http://127.0.0.1/callback` (the CLI listens on a dynamic loopback port and sends the actual `http://127.0.0.1:{port}/callback` redirect URI during authorization)
 - Public client (PKCE): enabled
 - Scopes: `profile email openid offline_access`
 
@@ -33,7 +33,7 @@ curl -X POST https://api.clerk.com/v1/oauth_applications \
   -H "Content-Type: application/json" \
   -d '{
     "name": "my-cli",
-    "redirect_uris": ["http://127.0.0.1:0/callback"],
+    "redirect_uris": ["http://127.0.0.1/callback"],
     "public": true,
     "pkce_required": true,
     "scopes": "profile email openid offline_access"
@@ -78,6 +78,8 @@ const me = await auth.whoami();
 await auth.logout();
 ```
 
+The import above uses this repo's private package name after you build or vendor it locally. It is illustrative; there is no published `@clerk/cli-auth` package today.
+
 ## How the flow works
 
 ```
@@ -110,6 +112,7 @@ bun run build        # emits dist/index.cjs + dist/index.mjs + .d.ts
 - **No token revocation on logout.** Logout only clears local storage; the refresh token remains valid on Clerk's side until it expires or is explicitly revoked via `/oauth/token/revoke`.
 - **Keychain path is tested structurally, not in CI.** Keychain access triggers OS credential-manager prompts in headless environments, so automated tests use memory and file stores. The keychain path does get exercised end-to-end when you run the demo against a real Clerk instance.
 - **Device Authorization Grant (RFC 8628) is not implemented.** The localhost-callback flow needs an open port, which doesn't work for CI, containers, or SSH sessions. If you need that, [open an issue](../../issues).
+- **Not a product SDK.** This repo intentionally keeps the implementation small so you can inspect and adapt it. A production SDK would likely add token revocation, stronger retry semantics, richer error types, and first-class provisioning guidance.
 
 ## License
 
