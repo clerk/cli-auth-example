@@ -24,7 +24,6 @@ export interface UserInfoParams {
 interface OAuthTokenResponse {
 	access_token?: unknown;
 	refresh_token?: unknown;
-	id_token?: unknown;
 	expires_in?: unknown;
 	scope?: unknown;
 	token_type?: unknown;
@@ -64,7 +63,6 @@ function mapTokenResponse(data: OAuthTokenResponse): TokenSet {
 	};
 
 	if (typeof data.refresh_token === "string") tokenSet.refreshToken = data.refresh_token;
-	if (typeof data.id_token === "string") tokenSet.idToken = data.id_token;
 	if (typeof data.scope === "string") tokenSet.scope = data.scope;
 	if (typeof data.token_type === "string") tokenSet.tokenType = data.token_type;
 	if (typeof data.expires_in === "number") {

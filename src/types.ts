@@ -17,7 +17,7 @@ export interface ClerkCliAuthConfig {
 	clientId: string;
 	/** Frontend API base URL, e.g. https://clerk.myapp.com (no trailing slash). */
 	issuer: string;
-	/** OAuth scopes to request. Default: ["profile", "email", "openid", "offline_access"]. */
+	/** OAuth scopes to request. Default: ["profile", "email", "offline_access"]. */
 	scopes?: string[];
 	/** Credential storage strategy. Default: "keychain" (with file fallback). */
 	storage?: StorageKind | CredentialStore;
@@ -36,7 +36,6 @@ export interface ClerkCliAuthConfig {
 export interface TokenSet {
 	accessToken: string;
 	refreshToken?: string;
-	idToken?: string;
 	expiresAt?: number;
 	scope?: string;
 	tokenType?: string;

@@ -12,7 +12,7 @@ import type {
 } from "./types.js";
 import { ClerkCliAuthError } from "./types.js";
 
-const DEFAULT_SCOPES = ["profile", "email", "openid", "offline_access"];
+const DEFAULT_SCOPES = ["profile", "email", "offline_access"];
 
 function normalizeIssuer(issuer: string): string {
 	const normalized = issuer.trim().replace(/\/+$/, "");

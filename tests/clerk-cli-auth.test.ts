@@ -43,9 +43,8 @@ describe("ClerkCliAuth", () => {
 				json(res, 200, {
 					access_token: "access-token",
 					refresh_token: "refresh-token",
-					id_token: "id-token",
 					expires_in: 3600,
-					scope: "profile email openid offline_access",
+					scope: "profile email offline_access",
 					token_type: "Bearer",
 				});
 				return;
@@ -95,7 +94,7 @@ describe("ClerkCliAuth", () => {
 		expect(authorizeUrl?.searchParams.get("response_type")).toBe("code");
 		expect(authorizeUrl?.searchParams.get("client_id")).toBe("client_123");
 		expect(authorizeUrl?.searchParams.get("code_challenge_method")).toBe("S256");
-		expect(authorizeUrl?.searchParams.get("scope")).toBe("profile email openid offline_access");
+		expect(authorizeUrl?.searchParams.get("scope")).toBe("profile email offline_access");
 
 		expect(tokenRequest?.get("grant_type")).toBe("authorization_code");
 		expect(tokenRequest?.get("client_id")).toBe("client_123");
