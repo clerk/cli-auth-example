@@ -23,7 +23,7 @@ Pick whichever path fits your workflow.
 - Name: your CLI's name
 - Redirect URI: `http://127.0.0.1/callback` (the CLI listens on a dynamic loopback port and sends the actual `http://127.0.0.1:{port}/callback` redirect URI during authorization)
 - Public client (PKCE): enabled
-- Scopes: `profile email openid offline_access`
+- Scopes: `profile email offline_access`
 
 **curl against BAPI** — if you prefer scripting. Replace `$SK` with your instance's secret key:
 
@@ -36,7 +36,7 @@ curl -X POST https://api.clerk.com/v1/oauth_applications \
     "redirect_uris": ["http://127.0.0.1/callback"],
     "public": true,
     "pkce_required": true,
-    "scopes": "profile email openid offline_access"
+    "scopes": "profile email offline_access"
   }'
 ```
 
@@ -59,7 +59,7 @@ import { ClerkCliAuth } from "@clerk/cli-auth";
 const auth = new ClerkCliAuth({
 	clientId: process.env.CLERK_OAUTH_CLIENT_ID!,
 	issuer: process.env.CLERK_ISSUER!,
-	scopes: ["profile", "email", "openid", "offline_access"],
+	scopes: ["profile", "email", "offline_access"],
 	storage: "keychain",
 	keychainService: "my-cli",
 });
@@ -84,7 +84,7 @@ The import above uses this repo's private package name after you build or vendor
 
 ```
 1. CLI generates PKCE (code_verifier, code_challenge=S256(verifier)) + CSRF state.
-2. CLI binds a one-shot HTTP server on 127.0.0.1:0 (random port).
+2. CLI binds a one-shot HTTP server on 127.0.0.1:0 (random port, loopback only).
 3. CLI opens browser to:
      {issuer}/oauth/authorize?client_id=...&code_challenge=...
        &redirect_uri=http://127.0.0.1:{port}/callback&state=...
