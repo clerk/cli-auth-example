@@ -2,9 +2,9 @@
 
 Reference implementation of the OAuth 2.0 Authorization Code + PKCE localhost-callback flow for adding [Clerk](https://clerk.com) authentication to command-line tools.
 
-Runtime-agnostic TypeScript (Node.js 18+, Bun), ~300 lines of real code, tested end-to-end against a real Clerk dev instance.
+Runtime-agnostic TypeScript (Node.js 18+, Bun), compact enough to inspect, tested end-to-end against a real Clerk dev instance.
 
-**Status:** reference implementation. Fork it, copy it, or vendor it into your CLI. This repo is not a published or officially supported `@clerk/cli-auth` package.
+**Status:** reference implementation. Fork it, copy it, or vendor it into your CLI.
 
 ## Why this exists
 
@@ -40,7 +40,19 @@ curl -X POST https://api.clerk.com/v1/oauth_applications \
   }'
 ```
 
-**Clerk CLI (if you have it installed)** — `clerk api /oauth_applications --instance <ins_...> -X POST -d '<payload>' --yes` does the same thing with keychain-based auth, no secret-key-in-env.
+**Clerk CLI (if you have it installed)** — link your project to the Clerk application, then create the OAuth application through the API:
+
+```bash
+clerk link --app app_...
+
+clerk api /oauth_applications --app app_... -X POST -d '{
+  "name": "my-cli",
+  "redirect_uris": ["http://127.0.0.1/callback"],
+  "public": true,
+  "pkce_required": true,
+  "scopes": "profile email offline_access"
+}' --yes
+```
 
 All three paths return a JSON object with `client_id`. Grab it along with your instance's Frontend API URL (the issuer, e.g. `https://clerk.your-subdomain.accounts.dev` or a custom domain like `https://clerk.yourapp.com`).
 
@@ -78,7 +90,7 @@ const me = await auth.whoami();
 await auth.logout();
 ```
 
-The import above uses this repo's private package name after you build or vendor it locally. It is illustrative; there is no published `@clerk/cli-auth` package today.
+The import above uses this repo's local package name after you build or vendor it locally.
 
 ## How the flow works
 
@@ -86,7 +98,8 @@ The import above uses this repo's private package name after you build or vendor
 1. CLI generates PKCE (code_verifier, code_challenge=S256(verifier)) + CSRF state.
 2. CLI binds a one-shot HTTP server on 127.0.0.1:0 (random port, loopback only).
 3. CLI opens browser to:
-     {issuer}/oauth/authorize?client_id=...&code_challenge=...
+     {issuer}/oauth/authorize?response_type=code&client_id=...
+       &code_challenge=...
        &redirect_uri=http://127.0.0.1:{port}/callback&state=...
        &code_challenge_method=S256
 4. User signs in via Clerk's hosted UI and approves consent.
